@@ -59,6 +59,23 @@ export interface PhoneAddOns {
   privateDedicatedSim?: boolean;
 }
 
+export interface CallRecording {
+  id: string;
+  ticketNo: string;
+  recordingUrl: string;
+  duration: number;
+  timestamp: Date;
+}
+
+export interface ForwardedEmail {
+  id: string;
+  ticketNo: string;
+  from: string;
+  subject: string;
+  body: string;
+  timestamp: Date;
+}
+
 export interface PhoneTicket {
   ticketNo: string;
   userId?: string;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageView, UserSession } from '../types';
 import { LogOut, User, Menu, X, Smartphone, Mail } from 'lucide-react';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface HeaderProps {
   currentPage: PageView;
@@ -116,6 +117,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden lg:inline">Pull a ticket</span>
             <span className="lg:hidden">Pull ticket</span>
           </button>
+          <PWAInstallButton />
         </div>
 
         {/* Mobile menu button */}

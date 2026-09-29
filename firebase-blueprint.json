@@ -1,100 +1,41 @@
 {
-  "$schema": "https://firebase.google.com/schemas/blueprint/v1.json",
   "entities": {
-    "UserProfile": {
-      "collection": "users",
-      "fields": {
-        "uid": { "type": "string" },
-        "email": { "type": "string" },
-        "displayName": { "type": "string" },
-        "photoURL": { "type": "string" },
-        "createdAt": { "type": "timestamp" },
-        "updatedAt": { "type": "timestamp" }
-      }
-    },
-    "PhoneTicket": {
-      "collection": "phoneTickets",
-      "fields": {
-        "ticketNo": { "type": "string" },
-        "userId": { "type": "string" },
-        "userEmail": { "type": "string" },
-        "countryIso": { "type": "string" },
-        "areaCode": { "type": "string" },
-        "fullNumber": { "type": "string" },
-        "days": { "type": "number" },
-        "rate": { "type": "number" },
-        "callRecording": { "type": "boolean" },
-        "addOns": { "type": "map" },
-        "issuedAt": { "type": "timestamp" },
-        "expiresAt": { "type": "timestamp" },
-        "isLive": { "type": "boolean" }
-      }
-    },
-    "SmsMessage": {
-      "collection": "smsMessages",
-      "fields": {
+    "CallRecording": {
+      "title": "CallRecording",
+      "description": "Metadata for a recorded call",
+      "type": "object",
+      "properties": {
         "id": { "type": "string" },
         "ticketNo": { "type": "string" },
-        "userId": { "type": "string" },
-        "userEmail": { "type": "string" },
-        "from": { "type": "string" },
-        "to": { "type": "string" },
-        "body": { "type": "string" },
-        "otpCode": { "type": "string" },
-        "timestamp": { "type": "string" },
-        "isRead": { "type": "boolean" },
-        "isOutbound": { "type": "boolean" }
-      }
+        "recordingUrl": { "type": "string" },
+        "duration": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ticketNo", "recordingUrl", "timestamp"]
     },
-    "MailTicket": {
-      "collection": "mailTickets",
-      "fields": {
-        "ticketNo": { "type": "string" },
-        "userId": { "type": "string" },
-        "userEmail": { "type": "string" },
-        "username": { "type": "string" },
-        "domain": { "type": "string" },
-        "fullAddress": { "type": "string" },
-        "durationMins": { "type": "number" },
-        "rate": { "type": "number" },
-        "forwardToInbox": { "type": "boolean" },
-        "issuedAt": { "type": "timestamp" },
-        "expiresAt": { "type": "timestamp" },
-        "isLive": { "type": "boolean" }
-      }
-    },
-    "MailMessage": {
-      "collection": "mailMessages",
-      "fields": {
+    "ForwardedEmail": {
+      "title": "ForwardedEmail",
+      "description": "Content of a forwarded email",
+      "type": "object",
+      "properties": {
         "id": { "type": "string" },
         "ticketNo": { "type": "string" },
-        "userId": { "type": "string" },
         "from": { "type": "string" },
-        "to": { "type": "string" },
         "subject": { "type": "string" },
-        "preview": { "type": "string" },
         "body": { "type": "string" },
-        "timestamp": { "type": "string" },
-        "isRead": { "type": "boolean" },
-        "isOutbound": { "type": "boolean" }
-      }
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ticketNo", "from", "subject", "body", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/phoneTickets/{ticketId}/recordings/{recordingId}": {
+      "schema": "CallRecording",
+      "description": "Call recordings associated with a ticket"
     },
-    "PaymentReceipt": {
-      "collection": "paymentReceipts",
-      "fields": {
-        "id": { "type": "string" },
-        "userId": { "type": "string" },
-        "userEmail": { "type": "string" },
-        "amount": { "type": "number" },
-        "ticketLabel": { "type": "string" },
-        "paymentMethod": { "type": "string" },
-        "authCode": { "type": "string" },
-        "transactionId": { "type": "string" },
-        "timestamp": { "type": "timestamp" },
-        "status": { "type": "string" },
-        "cardLast4": { "type": "string" },
-        "cardBrand": { "type": "string" }
-      }
+    "/phoneTickets/{ticketId}/forwardedEmails/{emailId}": {
+      "schema": "ForwardedEmail",
+      "description": "Forwarded emails associated with a ticket"
     }
   }
 }

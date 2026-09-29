@@ -21,7 +21,7 @@ import {
   getDocFromServer
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { PhoneTicket, SmsMessage, MailTicket, MailMessage, UserProfile, PaymentReceipt } from '../types';
+import { PhoneTicket, SmsMessage, MailTicket, MailMessage, UserProfile, PaymentReceipt, CallRecording, ForwardedEmail } from '../types';
 
 // Initialize Firebase app singleton
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -485,4 +485,69 @@ export async function loadPaymentReceiptsFromFirestore(userId: string): Promise<
     return [];
   }
 }
+// Firestore persistence for Call Recordings
+export async function saveCallRecordingToFirestore(ticketNo: string, recording: CallRecording) {
+  try {
+    const recordingRef = doc(db, `phoneTickets/${ticketNo}/recordings`, recording.id);
+    await setDoc(recordingRef, {
+      ...recording,
+      timestamp: Timestamp.fromDate(new Date(recording.timestamp))
+    });
+  } catch (err) {
+    console.warn('Error saving call recording to Firestore:', err);
+  }
+}
 
+export async function loadCallRecordingsFromFirestore(ticketNo: string): Promise<CallRecording[]> {
+  try {
+    const collRef = collection(db, `phoneTickets/${ticketNo}/recordings`);
+    const snapshot = await getDocs(collRef);
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: data.id,
+        ticketNo: data.ticketNo,
+        recordingUrl: data.recordingUrl,
+        duration: data.duration,
+        timestamp: toDate(data.timestamp)
+      };
+    });
+  } catch (err) {
+    console.warn('Error loading call recordings from Firestore:', err);
+    return [];
+  }
+}
+
+// Firestore persistence for Forwarded Emails
+export async function saveForwardedEmailToFirestore(ticketNo: string, email: ForwardedEmail) {
+  try {
+    const emailRef = doc(db, `phoneTickets/${ticketNo}/forwardedEmails`, email.id);
+    await setDoc(emailRef, {
+      ...email,
+      timestamp: Timestamp.fromDate(new Date(email.timestamp))
+    });
+  } catch (err) {
+    console.warn('Error saving forwarded email to Firestore:', err);
+  }
+}
+
+export async function loadForwardedEmailsFromFirestore(ticketNo: string): Promise<ForwardedEmail[]> {
+  try {
+    const collRef = collection(db, `phoneTickets/${ticketNo}/forwardedEmails`);
+    const snapshot = await getDocs(collRef);
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: data.id,
+        ticketNo: data.ticketNo,
+        from: data.from,
+        subject: data.subject,
+        body: data.body,
+        timestamp: toDate(data.timestamp)
+      };
+    });
+  } catch (err) {
+    console.warn('Error loading forwarded emails from Firestore:', err);
+    return [];
+  }
+}
