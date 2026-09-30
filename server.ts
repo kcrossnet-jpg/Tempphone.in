@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from 'express';
+import http from 'http';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
@@ -976,10 +977,15 @@ async function startServer() {
   // 8. VITE MIDDLEWARE OR STATIC SERVING
   // ==========================================
   const isProduction = process.env.NODE_ENV === 'production' || process.argv.includes('--production');
+  const httpServer = http.createServer(app);
 
   if (!isProduction) {
+    const isHmrDisabled = process.env.DISABLE_HMR === 'true';
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: isHmrDisabled ? false : { server: httpServer }
+      },
       appType: 'spa'
     });
     app.use(vite.middlewares);
@@ -995,7 +1001,15 @@ async function startServer() {
     }
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  httpServer.on('error', (err: any) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Please check running processes.`);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+
+  httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`[TempPhone API & Web Server] Running on http://0.0.0.0:${PORT}`);
     console.log(`[Features] Temporary Email (HTML/Text, TTL presets), Phone/SMS Allocation, Cryptographic Hashed OTP`);
   });
